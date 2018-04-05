@@ -1,0 +1,42 @@
+apply plugin: "groovy"
+
+version "2.03"
+
+apply from: "https://mymavenrepo.com/repo/${myMavenRepoReadToken}/soyuz-gradle/1.0/base-1.0.gradle"
+
+allprojects {
+    group = "io.belov"
+
+    ext {
+        repos = [
+                jongo     : "http://repository-jongo.forge.cloudbees.com/release",
+                urlBuilder: "http://maven2.gueck.com/releases"
+        ]
+
+    }
+
+    repositories {
+        maven { url repos.jongo }
+        maven { url repos.urlBuilder }
+    }
+
+    test {
+        systemProperties "file.encoding": "UTF-8" //fix utf-8 problems in tests
+        testLogging.showStandardStreams = true //display stdout on tests
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "2.3"
+}
+
+dependencies {
+    compile cl.utils.commons.bean
+    compile cl.utils.jsr305
+    compile cl.utils.thedocs.err
+    compile cl.json.jackson.annotations
+    provided cl.utils.lombok
+
+    testCompile cl.test.spock.core
+    testCompile cl.utils.thedocs.isTo
+}
