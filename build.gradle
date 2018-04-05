@@ -1,11 +1,11 @@
 apply plugin: "groovy"
 
-version "2.03"
+version "2.01"
 
 apply from: "https://mymavenrepo.com/repo/${myMavenRepoReadToken}/soyuz-gradle/1.0/base-1.0.gradle"
 
 allprojects {
-    group = "io.belov"
+    group = "io.thedocs"
 
     ext {
         repos = [

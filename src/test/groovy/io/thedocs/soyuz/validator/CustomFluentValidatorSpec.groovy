@@ -7,12 +7,12 @@ class CustomFluentValidatorSpec extends Specification {
 
     def "simple"() {
         when:
-        def validator = FluentValidator.of(Car).i("power").custom(
+        def validator = Fv.of(Car).primitiveInt("power").custom(
                 { c, power ->
                     if (power > 100) {
-                        return FluentValidator.CustomResult.success()
+                        return Fv.CustomResult.success()
                     } else {
-                        return FluentValidator.CustomResult.failure("min")
+                        return Fv.CustomResult.failure("min")
                     }
                 } as FluentValidatorObjects.CustomValidator.Simple).b().build()
 
@@ -21,17 +21,17 @@ class CustomFluentValidatorSpec extends Specification {
 
         where:
         car                 | result
-        new Car(power: 150) | { c -> FluentValidator.Result.success(c) }
-        new Car(power: 90)  | { c -> FluentValidator.Result.failure(c, Err.field("power").code("min").value(90).build()) }
+        new Car(power: 150) | { c -> Fv.Result.success(c) }
+        new Car(power: 90)  | { c -> Fv.Result.failure(c, Err.field("power").code("min").value(90).build()) }
     }
 
     def "collection"() {
         when:
-        def validator = FluentValidator.of(Car).collection("wheels").custom({ c, wheels ->
+        def validator = Fv.of(Car).collection("wheels").custom({ c, wheels ->
             if (wheels.size() != 4) {
-                return FluentValidator.CustomResult.failure("wrongNumber")
+                return Fv.CustomResult.failure("wrongNumber")
             } else {
-                return FluentValidator.CustomResult.success()
+                return Fv.CustomResult.success()
             }
         } as FluentValidatorObjects.CustomValidator.Simple).b().build()
 
@@ -40,14 +40,14 @@ class CustomFluentValidatorSpec extends Specification {
 
         where:
         car                                                                   | result
-        new Car(wheels: [new Wheel(), new Wheel(), new Wheel(), new Wheel()]) | { c -> FluentValidator.Result.success(c) }
-        new Car(wheels: [new Wheel()])                                        | { c -> FluentValidator.Result.failure(c, Err.field("wheels").code("wrongNumber").value(c.wheels).build()) }
+        new Car(wheels: [new Wheel(), new Wheel(), new Wheel(), new Wheel()]) | { c -> Fv.Result.success(c) }
+        new Car(wheels: [new Wheel()])                                        | { c -> Fv.Result.failure(c, Err.field("wheels").code("wrongNumber").value(c.wheels).build()) }
     }
 
     def "deep"() {
         when:
-        def validator = FluentValidator.of(Car).collection("engine").custom({ c, engine, validator ->
-            return FluentValidator.CustomResult.from(
+        def validator = Fv.of(Car).collection("engine").customWithBuilder({ c, engine, validator ->
+            return Fv.CustomResult.from(
                     validator
                             .string("title").notEmpty().b()
                             .build()
@@ -60,8 +60,8 @@ class CustomFluentValidatorSpec extends Specification {
 
         where:
         car                                       | result
-        new Car()                                 | { c -> FluentValidator.Result.failure(c, Err.field("engine.title").code("notEmpty").build()) }
-        new Car(engine: new Engine(title: "bmw")) | { c -> FluentValidator.Result.success(c) }
+        new Car()                                 | { c -> Fv.Result.failure(c, Err.field("engine.title").code("notEmpty").build()) }
+        new Car(engine: new Engine(title: "bmw")) | { c -> Fv.Result.success(c) }
     }
 
     static class Car {

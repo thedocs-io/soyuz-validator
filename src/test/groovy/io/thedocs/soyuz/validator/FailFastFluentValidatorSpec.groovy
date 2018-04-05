@@ -24,7 +24,7 @@ class FailFastFluentValidatorSpec extends Specification {
         result = validator.validate(car)
 
         then:
-        assert result == FluentValidator.Result.success(car)
+        assert result == Fv.Result.success(car)
         assert checked.get() == true
 
         when:
@@ -33,7 +33,7 @@ class FailFastFluentValidatorSpec extends Specification {
         result = validator.validate(car)
 
         then:
-        assert result == FluentValidator.Result.failure(car, Errors.reject(Err.field("title").code("notEmpty").build(), Err.field("power").code("min").value(90).build()))
+        assert result == Fv.Result.failure(car, Errors.reject(Err.field("title").code("notEmpty").build(), Err.field("power").code("min").value(90).build()))
         assert checked.get() == true
 
         when:
@@ -42,22 +42,22 @@ class FailFastFluentValidatorSpec extends Specification {
         result = getValidator(true, checked).validate(car)
 
         then:
-        assert result == FluentValidator.Result.failure(car, Err.field("title").code("notEmpty").build())
+        assert result == Fv.Result.failure(car, Err.field("title").code("notEmpty").build())
         assert checked.get() == false
     }
 
     private getValidator(boolean failFast, AtomicBoolean powerChecked) {
-        return FluentValidator.of(Car)
+        return Fv.of(Car)
                 .failFast(failFast)
                 .string("title").notEmpty().b()
-                .i("power").custom(
+                .primitiveInt("power").custom(
                 { car, power ->
                     powerChecked.set(true)
 
                     if (power > 100) {
-                        return FluentValidator.CustomResult.success()
+                        return Fv.CustomResult.success()
                     } else {
-                        return FluentValidator.CustomResult.failure(null, "min", power, null)
+                        return Fv.CustomResult.failure(Err.code("min").value(power).build())
                     }
                 } as FluentValidatorObjects.CustomValidator.Simple).b()
                 .build()

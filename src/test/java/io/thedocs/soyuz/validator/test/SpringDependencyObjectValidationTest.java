@@ -1,7 +1,7 @@
 package io.thedocs.soyuz.validator.test;
 
 import io.thedocs.soyuz.is;
-import io.thedocs.soyuz.validator.FluentValidator;
+import io.thedocs.soyuz.validator.Fv;
 import lombok.AllArgsConstructor;
 
 import java.util.Collection;
@@ -15,33 +15,34 @@ public class SpringDependencyObjectValidationTest {
     private CompanyValidatorProvider companyValidatorProvider;
 
     public SpringDependencyObjectValidationTest() {
+        Fv.Result<Company> result = companyValidatorProvider.get().validate(null);
 
     }
 
     private static class CompanyValidatorProvider {
 
-        private FluentValidator<Company> companyValidator;
+        private Fv.Validator<Company> companyValidator;
 
         public CompanyValidatorProvider(CompanyDao dao) {
-            this.companyValidator = FluentValidator.of(Company.class)
+            this.companyValidator = Fv.of(Company.class)
                     .string("name").notEmpty().custom((o, v) -> {
                         if (is.t(v) && !dao.isNameUnique(v, o.getId())) {
-                            return FluentValidator.CustomResult.failure("notUnique");
+                            return Fv.CustomResult.failure("notUnique");
                         } else {
-                            return FluentValidator.CustomResult.success();
+                            return Fv.CustomResult.success();
                         }
                     }).b()
                     .collection("employeeIds", Integer.class).custom((o, v) -> {
                         if (is.t(v) && dao.hasLinkedToOtherCompanies(v, o.getId())) {
-                            return FluentValidator.CustomResult.failure("hasLinkedToOtherAgencies");
+                            return Fv.CustomResult.failure("hasLinkedToOtherAgencies");
                         } else {
-                            return FluentValidator.CustomResult.success();
+                            return Fv.CustomResult.success();
                         }
                     }).b()
                     .build();
         }
 
-        public FluentValidator<Company> get() {
+        public Fv.Validator<Company> get() {
             return companyValidator;
         }
     }

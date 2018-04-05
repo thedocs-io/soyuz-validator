@@ -8,12 +8,12 @@ class ValidatorFluentValidatorSpec extends Specification {
 
     def "simple"() {
         when:
-        def engineValidator = FluentValidator.of(CarEngine)
+        def engineValidator = Fv.of(CarEngine)
                 .string("title").notEmpty().b()
-                .i("power").greaterThan(1).lessThan(999).b()
+                .primitiveInt("power").greaterThan(1).lessThan(999).b()
                 .build()
 
-        def carValidator = FluentValidator.of(Car)
+        def carValidator = Fv.of(Car)
                 .string("title").notEmpty().b()
                 .object("engine", CarEngine).notNull().validator(engineValidator).b()
                 .build()
@@ -25,7 +25,7 @@ class ValidatorFluentValidatorSpec extends Specification {
         where:
         car                                                                    | result
         new Car()                                                              | { c ->
-            FluentValidator.Result.failure(
+            Fv.Result.failure(
                     c,
                     Errors.reject(
                             Err.field("title").code("notEmpty").build(),
@@ -35,7 +35,7 @@ class ValidatorFluentValidatorSpec extends Specification {
         }
 
         new Car(title: "", engine: new CarEngine())                            | { c ->
-            FluentValidator.Result.failure(
+            Fv.Result.failure(
                     c,
                     Errors.reject(
                             Err.field("title").code("notEmpty").value("").build(),
@@ -45,7 +45,7 @@ class ValidatorFluentValidatorSpec extends Specification {
             )
         }
 
-        new Car(title: "Lada", engine: new CarEngine(title: "v8", power: 113)) | { c -> FluentValidator.Result.success(c) }
+        new Car(title: "Lada", engine: new CarEngine(title: "v8", power: 113)) | { c -> Fv.Result.success(c) }
     }
 
     static class Car {

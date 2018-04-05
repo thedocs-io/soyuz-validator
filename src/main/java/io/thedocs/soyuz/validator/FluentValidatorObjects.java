@@ -70,7 +70,7 @@ public class FluentValidatorObjects {
         }
 
 
-        public BuilderClass validator(FluentValidator<V> validator) {
+        public BuilderClass validator(Fv.Validator<V> validator) {
             data.addRule(new FluentValidatorRule.Base.Validator<>(validator));
 
             return _this();
@@ -82,7 +82,7 @@ public class FluentValidatorObjects {
             return _this();
         }
 
-        public BuilderClass custom(CustomValidator.WithBuilder<R, V> customValidatorWithBuilder) {
+        public BuilderClass customWithBuilder(CustomValidator.WithBuilder<R, V> customValidatorWithBuilder) {
             data.addRule(new FluentValidatorRule.Base.Custom<>(customValidatorWithBuilder));
 
             return _this();
@@ -102,23 +102,23 @@ public class FluentValidatorObjects {
     /**
      * Created by fbelov on 22.05.16.
      */
-    public static interface CustomValidator {
+    public interface CustomValidator {
 
         interface Simple<P, V> extends CustomValidator {
-            FluentValidator.CustomResult validate(P object, V propertyValue);
+            Fv.CustomResult validate(P object, V propertyValue);
         }
 
         interface WithBuilder<P, V> extends CustomValidator {
-            FluentValidator.CustomResult validate(P object, V propertyValue, FluentValidatorBuilder<V> fluentValidatorBuilder);
+            Fv.CustomResult validate(P object, V propertyValue, FluentValidatorBuilder<V> fluentValidatorBuilder);
         }
     }
 
     /**
      * Created by fbelov on 22.05.16.
      */
-    public static interface FluentValidatorValidationData<R, V> {
+    public interface FluentValidatorValidationData<R, V> {
 
-        FluentValidator.Result validate(R rootObject, String property, V value);
+        Fv.Result validate(R rootObject, String property, V value);
 
     }
 
@@ -134,7 +134,7 @@ public class FluentValidatorObjects {
 //        private Function<V, Boolean> notEqFunction;
         private List<BiFunction> when = new ArrayList<>();
         private BiFunction unless;
-        private FluentValidator<V> validator;
+        private Fv.Validator<V> validator;
         private final List<CustomValidator> customValidators = new ArrayList<>();
         private String message;
 
@@ -155,7 +155,7 @@ public class FluentValidatorObjects {
         }
 
         @Override
-        public FluentValidator.Result validate(R rootObject, String property, V value) {
+        public Fv.Result validate(R rootObject, String property, V value) {
             for (BiFunction<R, V, Boolean> whenItem : when) {
                 if (!whenItem.apply(rootObject, value)) {
                     return null;
@@ -165,7 +165,7 @@ public class FluentValidatorObjects {
             //todo unless
 
             for (FluentValidatorRule<R, V> rule : rules) {
-                FluentValidator.Result result = rule.validate(rootObject, property, value);
+                Fv.Result result = rule.validate(rootObject, property, value);
 
                 if (result != null && result.hasErrors()) {
                     return result;

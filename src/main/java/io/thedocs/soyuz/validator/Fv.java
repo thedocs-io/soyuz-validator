@@ -15,75 +15,24 @@ import java.util.function.Supplier;
 /**
  * Created by fbelov on 28.04.16.
  */
-public interface FluentValidator {
+public interface Fv {
 
     //https://github.com/JeremySkinner/FluentValidation
 
-    interface Validator<T> {
-        FluentValidator.Result<T> validate(T rootObject);
-
-        static <T> FluentValidatorBuilder<T> of(Class<T> clazz) {
-            return new FluentValidatorBuilder<>();
-        }
-
-        static <T> FluentValidatorBuilder<T> of(String property, Class<T> clazz) {
-            return new FluentValidatorBuilder<>(property);
-        }
-
-//    public static FluentValidatorBuilder.ChainBuilder chain() {
-//        return new FluentValidatorBuilder.ChainBuilder();
-//    }
+    static <T> FluentValidatorBuilder<T> of(Class<T> clazz) {
+        return new FluentValidatorBuilder<>();
     }
 
-    @ToString
-    class Data<R> implements FluentValidator<R> {
-        private static final PropertyUtilsBean PROPERTY_UTILS_BEAN = BeanUtilsBean.getInstance().getPropertyUtils();
+    static <T> FluentValidatorBuilder<T> of(String property, Class<T> clazz) {
+        return new FluentValidatorBuilder<>(property);
+    }
 
-        private List<FluentValidatorBuilder.ValidationDataWithProperties> validationData = new ArrayList<>();
-
-        public Data(List<FluentValidatorBuilder.ValidationDataWithProperties> validationData) {
-            this.validationData = validationData;
-        }
-
-        public List<FluentValidatorBuilder.ValidationDataWithProperties> getValidationData() {
-            return validationData;
-        }
-
-        public FluentValidator.Result<R> validate(R rootObject) {
-            Errors errors = Errors.ok();
-
-            for (FluentValidatorBuilder.ValidationDataWithProperties validationDataWithProperties : validationData) {
-                String property = validationDataWithProperties.getProperty();
-                Object value = getPropertyValue(rootObject, property);
-
-                FluentValidator.Result result = validationDataWithProperties.getData().validate(rootObject, property, value);
-
-                if (result != null) {
-                    errors.add(result.getErrors());
-                }
-            }
-
-            return FluentValidator.Result.failure(rootObject, errors);
-        }
-
-        private Object getPropertyValue(R o, String property) {
-            try {
-                if (o == null) {
-                    return null;
-                } else if (property == null) {
-                    return o;
-                } else {
-                    return PROPERTY_UTILS_BEAN.getNestedProperty(o, property);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
+    interface Validator<T> {
+        Fv.Result<T> validate(T rootObject);
     }
 
     /**
      * Created by fbelov on 07.06.16.
-     * todo mix with FluentValidator.Result
      */
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -172,7 +121,7 @@ public interface FluentValidator {
 
         public void ifHasErrorsThrowAnException() {
             if (hasErrors()) {
-                throw new ValidationException(rootObject, errors);
+                throw new BeanValidationException(rootObject, errors);
             }
         }
 
@@ -203,23 +152,20 @@ public interface FluentValidator {
 
     @Getter
     @ToString
-    class ValidationException extends RuntimeException {
+    class BeanValidationException extends RuntimeException {
         private Object rootObject;
         private Errors errors;
 
-        public ValidationException(Object rootObject, Errors errors) {
+        public BeanValidationException(Object rootObject, Errors errors) {
             super("{root=" + rootObject + ", errors=" + errors + "}");
 
             this.rootObject = rootObject;
             this.errors = errors;
         }
 
-        public ValidationException(Object rootObject, Err error) {
+        public BeanValidationException(Object rootObject, Err error) {
             this(rootObject, Errors.reject(error));
         }
-
-        //todo better constructor
-        //throw new FluentValidator.ValidationException(dvd, to.list(new FluentValidator.Error<>(result.getFailureReason().toString(), dvd)));
 
     }
 

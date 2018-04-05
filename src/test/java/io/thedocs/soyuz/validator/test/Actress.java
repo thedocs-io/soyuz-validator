@@ -1,6 +1,6 @@
 package io.thedocs.soyuz.validator.test;
 
-import io.thedocs.soyuz.validator.FluentValidator;
+import io.thedocs.soyuz.validator.Fv;
 
 import java.util.Set;
 
@@ -15,10 +15,10 @@ public class Actress {
     private Set<Tag> tags;
     private Sizes sizes;
 
-//    FluentValidator tagTranslationValidator = validate(TagTranslation.class)
+//    Fv tagTranslationValidator = validate(TagTranslation.class)
 //            .string("title").notEmpty().build();
 //
-//    FluentValidator v = validate(FluentValidator.class)
+//    Fv v = validate(Fv.class)
 //            .integer("name").notNull().isGreaterThan(20).back()
 //            .string("hello").custom((a) -> {
 //
@@ -33,28 +33,28 @@ public class Actress {
 //            .list("tagTranslation").validator(tagTranslationValidator).back()
 //            .build();
 
-    public static FluentValidator<Actress> getValidator() {
+    public static Fv.Validator<Actress> getValidator() {
         Object tagValidator = null;
-//        Object tagTranslationChain = FluentValidator.chain().object(TagTranslation.class).notNull().validator(tagTranslationValidator);
+//        Object tagTranslationChain = Fv.chain().object(TagTranslation.class).notNull().validator(tagTranslationValidator);
         TagTranslation jaTranslation = null;
-        FluentValidator<TagTranslation> tagTranslationValidator = TagTranslation.getValidator();
+        Fv.Validator<TagTranslation> tagTranslationValidator = TagTranslation.getValidator();
 
-        return FluentValidator.of(Actress.class)
+        return Fv.of(Actress.class)
                 .failFast()
                 .notNull()
-                .custom((object, propertyValue, fluentValidatorBuilder) -> {
-                    return FluentValidator.CustomResult.success();
+                .customWithBuilder((object, propertyValue, fluentValidatorBuilder) -> {
+                    return Fv.CustomResult.success();
                 })
                 .object("en", TagTranslation.class).validator(tagTranslationValidator).message("a.en.translation.wrong").b()
                 .object("ja", TagTranslation.class).eq(jaTranslation).validator(tagTranslationValidator).b()
                 .string("blogUrl").url().notEmpty().b()
                 .collection("tags", Tag.class).notEmpty().greaterThan(0).lessThan(5).itemValidator(Tag.getValidator()).b()
-                .object("sizes", Actress.Sizes.class).notNull().custom((o, value, validator) -> {
-                    return FluentValidator.CustomResult.from(
+                .object("sizes", Actress.Sizes.class).notNull().customWithBuilder((o, value, validator) -> {
+                    return Fv.CustomResult.from(
                             validator
-                                    .i("height").greaterThan(4).lessThan(5).b()
-                                    .i("breast").greaterThan(1).b()
-                                    .i("waist").greaterThan(1).lessThan(999).b()
+                                    .primitiveInt("height").greaterThan(4).lessThan(5).b()
+                                    .primitiveInt("breast").greaterThan(1).b()
+                                    .primitiveInt("waist").greaterThan(1).lessThan(999).b()
                                     .build()
                                     .validate(value)
                     );

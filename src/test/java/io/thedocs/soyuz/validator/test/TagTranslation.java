@@ -1,6 +1,6 @@
 package io.thedocs.soyuz.validator.test;
 
-import io.thedocs.soyuz.validator.FluentValidator;
+import io.thedocs.soyuz.validator.Fv;
 
 /**
  * Created by fbelov on 06.05.16.
@@ -18,8 +18,8 @@ class TagTranslation {
         return value;
     }
 
-    public static FluentValidator<TagTranslation> getValidator() {
-        return FluentValidator.of(TagTranslation.class)
+    public static Fv.Validator<TagTranslation> getValidator() {
+        return Fv.of(TagTranslation.class)
                 .string("lang").notEmpty().b()
                 .string("value").notEmpty().b()
                 .build();

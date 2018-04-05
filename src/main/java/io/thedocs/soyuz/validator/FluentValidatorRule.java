@@ -16,13 +16,13 @@ import java.util.function.Supplier;
  */
 public interface FluentValidatorRule<R, V> {
 
-    FluentValidator.Result validate(R rootObject, String property, V value);
+    Fv.Result validate(R rootObject, String property, V value);
 
     abstract class AbstractRule<R, V> implements FluentValidatorRule<R, V> {
 
-        public FluentValidator.Result validate(R rootObject, String property, V value) {
+        public Fv.Result validate(R rootObject, String property, V value) {
             if (!isValid(rootObject, value)) {
-                return FluentValidator.Result.failure(rootObject, Err.field(property).code(getCode()).value(value).params(getErrorParams()).build());
+                return Fv.Result.failure(rootObject, Err.field(property).code(getCode()).value(value).params(getErrorParams()).build());
             } else {
                 return null;
             }
@@ -654,22 +654,22 @@ public interface FluentValidatorRule<R, V> {
 
         class ItemValidator<R, V> implements FluentValidatorRule<R, Collection<V>> {
 
-            private FluentValidator<V> validator;
+            private Fv.Validator<V> validator;
 
-            public ItemValidator(FluentValidator<V> validator) {
+            public ItemValidator(Fv.Validator<V> validator) {
                 this.validator = validator;
             }
 
             @Override
-            public FluentValidator.Result validate(R rootObject, String property, Collection<V> value) {
+            public Fv.Result validate(R rootObject, String property, Collection<V> value) {
                 if (value == null) {
-                    return FluentValidator.Result.success();
+                    return Fv.Result.success();
                 } else {
                     Errors errors = Errors.ok();
                     int index = 0;
 
                     for (V item : value) {
-                        FluentValidator.Result result = validator.validate(item);
+                        Fv.Result result = validator.validate(item);
 
                         if (result.hasErrors()) {
                             errors.add(FluentValidatorObjects.ErrorUtils.addParentProperty(result.getErrors(), property + "." + index));
@@ -679,9 +679,9 @@ public interface FluentValidatorRule<R, V> {
                     }
 
                     if (errors.isOk()) {
-                        return FluentValidator.Result.success();
+                        return Fv.Result.success();
                     } else {
-                        return FluentValidator.Result.failure(rootObject, errors);
+                        return Fv.Result.failure(rootObject, errors);
                     }
                 }
             }
@@ -737,7 +737,7 @@ public interface FluentValidatorRule<R, V> {
             }
 
             @Override
-            public FluentValidator.Result validate(R rootObject, String property, V value) {
+            public Fv.Result validate(R rootObject, String property, V value) {
                 return null;
             }
         }
@@ -751,7 +751,7 @@ public interface FluentValidatorRule<R, V> {
             }
 
             @Override
-            public FluentValidator.Result validate(R rootObject, String property, V value) {
+            public Fv.Result validate(R rootObject, String property, V value) {
                 return null;
             }
         }
@@ -770,8 +770,8 @@ public interface FluentValidatorRule<R, V> {
             }
 
             @Override
-            public FluentValidator.Result validate(R rootObject, String property, V value) {
-                FluentValidator.CustomResult result = null;
+            public Fv.Result validate(R rootObject, String property, V value) {
+                Fv.CustomResult result = null;
 
                 if (customSimple != null) {
                     result = customSimple.validate(rootObject, value);
@@ -786,9 +786,9 @@ public interface FluentValidatorRule<R, V> {
                 }
             }
 
-            private FluentValidator.Result toFvResult(FluentValidator.CustomResult result, R rootObject, String property, V value) {
+            private Fv.Result toFvResult(Fv.CustomResult result, R rootObject, String property, V value) {
                 if (result.isOk()) {
-                    return FluentValidator.Result.success(rootObject);
+                    return Fv.Result.success(rootObject);
                 } else {
                     Errors errorsSource = result.getErrors();
                     List<Err> errors = new ArrayList<>(errorsSource.get().size());
@@ -803,27 +803,27 @@ public interface FluentValidatorRule<R, V> {
                         );
                     }
 
-                    return FluentValidator.Result.failure(rootObject, Errors.reject(errors));
+                    return Fv.Result.failure(rootObject, Errors.reject(errors));
                 }
             }
         }
 
         class Validator<R, V> implements FluentValidatorRule<R, V> {
 
-            private FluentValidator<V> validator;
+            private Fv.Validator<V> validator;
 
-            public Validator(FluentValidator<V> validator) {
+            public Validator(Fv.Validator<V> validator) {
                 this.validator = validator;
             }
 
             @Override
-            public FluentValidator.Result validate(R rootObject, String property, V value) {
-                FluentValidator.Result result = validator.validate(value);
+            public Fv.Result validate(R rootObject, String property, V value) {
+                Fv.Result result = validator.validate(value);
 
                 if (result.isOk()) {
                     return result;
                 } else {
-                    return FluentValidator.Result.failure(rootObject, FluentValidatorObjects.ErrorUtils.addParentProperty(result.getErrors(), property));
+                    return Fv.Result.failure(rootObject, FluentValidatorObjects.ErrorUtils.addParentProperty(result.getErrors(), property));
                 }
             }
         }

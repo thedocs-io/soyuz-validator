@@ -68,7 +68,7 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
         return new CollectionBuilder<>(this, getFullProperty(property));
     }
 
-    public PrimitiveIntBuilder<T> i(String property) {
+    public PrimitiveIntBuilder<T> primitiveInt(String property) {
         return new PrimitiveIntBuilder<>(this, getFullProperty(property));
     }
 
@@ -84,10 +84,10 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
         return new LongBuilder<>(this, getFullProperty(property));
     }
 
-    public FluentValidator<T> build() {
+    public Fv.Validator<T> build() {
         validationData.add(new ValidationDataWithProperties(null, data));
 
-        return new FluentValidator.Data<T>(validationData);
+        return new FluentValidatorImpl<T>(validationData);
     }
 
     private FluentValidatorBuilder<T> addFluentValidatorValidationData(String property, FluentValidatorObjects.FluentValidatorValidationData validationData) {
@@ -103,20 +103,6 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
             return rootProperty + "." + property;
         }
     }
-
-//    public static class ChainBuilder {
-//        public ObjectData<Object, ObjectData> object() {
-//            return new ObjectData<>();
-//        }
-//
-//        public <V> ObjectData<Object, ObjectData> object(Class<V> clazz) {
-//
-//        }
-//
-//        public StringData<StringData> string() {
-//            return new StringData<>();
-//        }
-//    }
 
     public static class PrimitiveIntBuilder<R> extends AbstractBuilder<R, Integer, PrimitiveIntBuilder<R>, FluentValidatorObjects.IntData<R>> {
 
@@ -353,7 +339,7 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
             return this;
         }
 
-        public CollectionBuilder<R, V> itemValidator(FluentValidator<V> validator) {
+        public CollectionBuilder<R, V> itemValidator(Fv.Validator<V> validator) {
             data.addRule(new FluentValidatorRule.Coll.ItemValidator<>(validator));
 
             return _this();
