@@ -465,18 +465,18 @@ public interface FluentValidatorRule<R, V> {
     }
 
     interface D {
-        class Before<R, V> extends AbstractRule<R, V> {
+        class LessThan<R, V> extends AbstractRule<R, V> {
             private Supplier<V> dateSupplier;
             private Comparator<V> comparator;
 
-            public Before(Supplier<V> dateSupplier, Comparator<V> comparator) {
+            public LessThan(Supplier<V> dateSupplier, Comparator<V> comparator) {
                 this.dateSupplier = dateSupplier;
                 this.comparator = comparator;
             }
 
             @Override
             protected String getCode() {
-                return "before";
+                return "lessThan";
             }
 
             @Override
@@ -485,23 +485,63 @@ public interface FluentValidatorRule<R, V> {
             }
         }
 
-        class After<R, V> extends AbstractRule<R, V> {
+        class LessOrEqual<R, V> extends AbstractRule<R, V> {
             private Supplier<V> dateSupplier;
             private Comparator<V> comparator;
 
-            public After(Supplier<V> dateSupplier, Comparator<V> comparator) {
+            public LessOrEqual(Supplier<V> dateSupplier, Comparator<V> comparator) {
                 this.dateSupplier = dateSupplier;
                 this.comparator = comparator;
             }
 
             @Override
             protected String getCode() {
-                return "after";
+                return "lessOrEqual";
+            }
+
+            @Override
+            protected boolean isValid(R rootObject, V value) {
+                return value == null || comparator.compare(value, dateSupplier.get()) <= 0;
+            }
+        }
+
+        class GreaterThan<R, V> extends AbstractRule<R, V> {
+            private Supplier<V> dateSupplier;
+            private Comparator<V> comparator;
+
+            public GreaterThan(Supplier<V> dateSupplier, Comparator<V> comparator) {
+                this.dateSupplier = dateSupplier;
+                this.comparator = comparator;
+            }
+
+            @Override
+            protected String getCode() {
+                return "greaterThan";
             }
 
             @Override
             protected boolean isValid(R rootObject, V value) {
                 return value == null || comparator.compare(value, dateSupplier.get()) > 0;
+            }
+        }
+
+        class GreaterOrEqual<R, V> extends AbstractRule<R, V> {
+            private Supplier<V> dateSupplier;
+            private Comparator<V> comparator;
+
+            public GreaterOrEqual(Supplier<V> dateSupplier, Comparator<V> comparator) {
+                this.dateSupplier = dateSupplier;
+                this.comparator = comparator;
+            }
+
+            @Override
+            protected String getCode() {
+                return "greaterOrEqual";
+            }
+
+            @Override
+            protected boolean isValid(R rootObject, V value) {
+                return value == null || comparator.compare(value, dateSupplier.get()) >= 0;
             }
         }
 

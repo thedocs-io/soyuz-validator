@@ -4,6 +4,7 @@ import lombok.ToString;
 
 import javax.annotation.Nullable;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -58,6 +59,10 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
 
     public LocalDateBuilder<T> localDate(String property) {
         return new LocalDateBuilder<>(this, getFullProperty(property));
+    }
+
+    public LocalTimeBuilder<T> localTime(String property) {
+        return new LocalTimeBuilder<>(this, getFullProperty(property));
     }
 
     public CollectionBuilder<T, Object> collection(String property) {
@@ -262,6 +267,12 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
         }
     }
 
+    public static class LocalTimeBuilder<R> extends AbstractDateBuilder<R, LocalTime, LocalTimeBuilder<R>, FluentValidatorObjects.LocalTimeData<R>> {
+        public LocalTimeBuilder(FluentValidatorBuilder<R> builder, String property) {
+            super(builder, new FluentValidatorObjects.LocalTimeData<>(), property, getComparableComparator());
+        }
+    }
+
     public static abstract class AbstractDateBuilder<R, V, BuilderClass, DataClass extends FluentValidatorObjects.BaseData<R, V>> extends AbstractObjectBuilder<R, V, BuilderClass, DataClass> {
 
         private Comparator<V> comparator;
@@ -272,22 +283,42 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
             this.comparator = comparator;
         }
 
-        public BuilderClass before(V date) {
-            return before(() -> date);
+        public BuilderClass lessThan(V date) {
+            return lessThan(() -> date);
         }
 
-        public BuilderClass before(Supplier<V> dateSupplier) {
-            data.addRule(new FluentValidatorRule.D.Before<>(dateSupplier, comparator));
+        public BuilderClass lessThan(Supplier<V> dateSupplier) {
+            data.addRule(new FluentValidatorRule.D.LessThan<>(dateSupplier, comparator));
 
             return _this();
         }
 
-        public BuilderClass after(V date) {
-            return after(() -> date);
+        public BuilderClass lessOrEqual(V date) {
+            return lessOrEqual(() -> date);
         }
 
-        public BuilderClass after(Supplier<V> dateSupplier) {
-            data.addRule(new FluentValidatorRule.D.After<>(dateSupplier, comparator));
+        public BuilderClass lessOrEqual(Supplier<V> dateSupplier) {
+            data.addRule(new FluentValidatorRule.D.LessOrEqual<>(dateSupplier, comparator));
+
+            return _this();
+        }
+
+        public BuilderClass greaterThan(V date) {
+            return greaterThan(() -> date);
+        }
+
+        public BuilderClass greaterThan(Supplier<V> dateSupplier) {
+            data.addRule(new FluentValidatorRule.D.GreaterThan<>(dateSupplier, comparator));
+
+            return _this();
+        }
+
+        public BuilderClass greaterOrEqual(V date) {
+            return greaterOrEqual(() -> date);
+        }
+
+        public BuilderClass greaterOrEqual(Supplier<V> dateSupplier) {
+            data.addRule(new FluentValidatorRule.D.GreaterOrEqual<>(dateSupplier, comparator));
 
             return _this();
         }
