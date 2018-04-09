@@ -1,6 +1,7 @@
 package io.thedocs.soyuz.validator.test;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalTime;
@@ -11,6 +12,7 @@ import java.util.Set;
  */
 @Getter
 @AllArgsConstructor
+@Builder(toBuilder = true)
 public class Company {
     private int id;
     private String name;
@@ -20,6 +22,7 @@ public class Company {
 
     @AllArgsConstructor
     @Getter
+    @Builder(toBuilder = true)
     public static class Address {
         private String city;
         private String location;
@@ -27,6 +30,7 @@ public class Company {
 
     @AllArgsConstructor
     @Getter
+    @Builder(toBuilder = true)
     public static class WorkingHours {
         private LocalTime from;
         private LocalTime to;

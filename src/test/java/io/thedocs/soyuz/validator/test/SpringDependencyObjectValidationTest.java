@@ -1,24 +1,40 @@
 package io.thedocs.soyuz.validator.test;
 
+import io.thedocs.soyuz.err.Err;
 import io.thedocs.soyuz.is;
+import io.thedocs.soyuz.to;
 import io.thedocs.soyuz.validator.Fv;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.junit.Test;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by fbelov on 05.04.18.
  */
 public class SpringDependencyObjectValidationTest {
 
-    private CompanyValidatorProvider companyValidatorProvider;
+    private CompanyValidatorProvider companyValidatorProvider = SimpleSpringAkaContext.getInstance().getCompanyValidatorProvider();
 
-    public SpringDependencyObjectValidationTest() {
-        Fv.Result<Company> result = companyValidatorProvider.get().validate(null);
+    @Test
+    public void shouldValidateCompanyNameNotEmpty() {
+        //setup
+        Company company = createValidCompany().toBuilder()
+                .name("")
+                .build();
 
+        Fv.Result<Company> resultExpected = Fv.Result.failure(company, Err.field("name").code("notEmpty").build());
+
+        //when
+        Fv.Result<Company> result = companyValidatorProvider.get().validate(company);
+
+        //then
+        assertEquals(resultExpected, result);
     }
 
     private static class EmployeeValidatorProvider {
@@ -91,6 +107,10 @@ public class SpringDependencyObjectValidationTest {
         }
     }
 
+    private Company createValidCompany() {
+
+    }
+
     @AllArgsConstructor
     private static class CompanyDao {
 
@@ -114,6 +134,32 @@ public class SpringDependencyObjectValidationTest {
                     .orElseGet(null);
 
             return company == null || Integer.valueOf(company.getId()).equals(companyId);
+        }
+    }
+
+    @Getter
+    private static class SimpleSpringAkaContext {
+
+        private static SimpleSpringAkaContext instance;
+
+        private CompanyDao companyDao;
+        private EmployeeValidatorProvider employeeValidatorProvider;
+        private CompanyValidatorProvider companyValidatorProvider;
+
+        private SimpleSpringAkaContext() {
+            this.companyDao = new CompanyDao(to.list(
+
+            ));
+            this.employeeValidatorProvider = new EmployeeValidatorProvider();
+            this.companyValidatorProvider = new CompanyValidatorProvider(companyDao, employeeValidatorProvider);
+        }
+
+        public static synchronized SimpleSpringAkaContext getInstance() {
+            if (instance == null) {
+                instance = new SimpleSpringAkaContext();
+            }
+
+            return instance;
         }
     }
 }
