@@ -3,8 +3,10 @@ package io.thedocs.soyuz.validator.test;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -13,16 +15,18 @@ import java.util.Set;
 @Getter
 @AllArgsConstructor
 @Builder(toBuilder = true)
+@ToString
 public class Company {
     private int id;
     private String name;
-    private Set<Employee> employees;
+    private List<Employee> employees;
     private Address address;
     private WorkingHours workingHours;
 
     @AllArgsConstructor
     @Getter
     @Builder(toBuilder = true)
+    @ToString
     public static class Address {
         private String city;
         private String location;
@@ -31,6 +35,7 @@ public class Company {
     @AllArgsConstructor
     @Getter
     @Builder(toBuilder = true)
+    @ToString
     public static class WorkingHours {
         private LocalTime from;
         private LocalTime to;

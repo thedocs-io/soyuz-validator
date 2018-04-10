@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 /**
  * Created by fbelov on 22.05.16.
@@ -48,6 +49,21 @@ public interface FluentValidatorRule<R, V> {
             @Override
             protected boolean isValid(R rootObject, String value) {
                 return value != null && value.length() > 0;
+            }
+        }
+
+        class Mail<R> extends AbstractRule<R, String> {
+
+            private static final Pattern MAIL_PATTERN = Pattern.compile("^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$");
+
+            @Override
+            protected String getCode() {
+                return "mail";
+            }
+
+            @Override
+            protected boolean isValid(R rootObject, String value) {
+                return value == null || MAIL_PATTERN.matcher(value).matches();
             }
         }
 
@@ -712,7 +728,7 @@ public interface FluentValidatorRule<R, V> {
                         Fv.Result result = validator.validate(item);
 
                         if (result.hasErrors()) {
-                            errors.add(FluentValidatorObjects.ErrorUtils.addParentProperty(result.getErrors(), property + "." + index));
+                            errors.add(FluentValidatorObjects.ErrorUtils.addParentProperty(result.getErrors(), property + "[" + index + "]"));
                         }
 
                         index++;
