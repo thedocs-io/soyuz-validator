@@ -165,8 +165,8 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
             return this;
         }
 
-        public StringBuilder<R> mail() {
-            data.addRule(new FluentValidatorRule.Str.Mail<>());
+        public StringBuilder<R> email() {
+            data.addRule(new FluentValidatorRule.Str.Email<>());
 
             return this;
         }

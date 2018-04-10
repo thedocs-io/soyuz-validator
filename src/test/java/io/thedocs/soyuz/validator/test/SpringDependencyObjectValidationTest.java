@@ -104,7 +104,7 @@ public class SpringDependencyObjectValidationTest {
 
         Fv.Result<Company> resultExpected = Fv.Result.failure(company, Errors.reject(
                 Err.field("employees[0].id").code("greaterThan").value(-1).params(to.map("criterion", 0)).build(),
-                Err.field("employees[0].email").code("mail").value("pupkin").build(),
+                Err.field("employees[0].email").code("email").value("pupkin").build(),
                 Err.field("employees[0].age").code("greaterOrEqual").value(10).params(to.map("criterion", 18)).build(),
                 Err.field("employees[1].name").code("notEmpty").value("").build(),
                 Err.field("employees[1].age").code("notNull").value(null).build()
@@ -124,7 +124,7 @@ public class SpringDependencyObjectValidationTest {
         public EmployeeValidatorProvider() {
             this.employeeValidator = Fv.of(Employee.class)
                     .primitiveInt("id").greaterThan(0).b()
-                    .string("email").notEmpty().mail().b()
+                    .string("email").notEmpty().email().b()
                     .string("name").notEmpty().b()
                     .integer("age").notNull().greaterOrEqual(18).b()
                     .build();

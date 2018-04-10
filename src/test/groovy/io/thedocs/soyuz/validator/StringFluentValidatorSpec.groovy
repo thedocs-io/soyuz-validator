@@ -1,6 +1,7 @@
 package io.thedocs.soyuz.validator
 
 import io.thedocs.soyuz.err.Err
+import lombok.Getter
 import spock.lang.Specification
 
 class StringFluentValidatorSpec extends Specification {
@@ -17,6 +18,31 @@ class StringFluentValidatorSpec extends Specification {
         new Car()              | { c -> Fv.Result.failure(c, Err.field("title").code("notEmpty").build()) }
         new Car(title: "")     | { c -> Fv.Result.failure(c, Err.field("title").code("notEmpty").value("").build()) }
         new Car(title: "Lada") | { c -> Fv.Result.success(c) }
+    }
+
+    def "email"() {
+        when:
+        def validator = Fv.of(User).string("email").email().b().build()
+        def user = new User(email: email)
+
+        then:
+        assert validator.validate(user) == ((isValid) ? Fv.Result.success(user) : Fv.Result.failure(user, Err.field("email").code("email").value(email).build()))
+
+        where:
+        email                      | isValid
+        null                       | true
+        "user@domain.com"          | true
+        "user@domain.co.in"        | true
+        "user.name@domain.com"     | true
+        "user_name@domain.com"     | true
+        "abc"                      | false
+        "@yahoo.com"               | false
+        "user#domain.com"          | false
+        ".username@yahoo.com"      | false
+        "username@yahoo.com."      | false
+        "username@yahoo..com"      | false
+        "username@yahoo.c"         | false
+        "username@yahoo.corporate" | false
     }
 
     def "isBoolean"() {
@@ -294,6 +320,14 @@ class StringFluentValidatorSpec extends Specification {
 
         String getTitle() {
             return title
+        }
+    }
+
+    static class User {
+        private String email
+
+        String getEmail() {
+            return email
         }
     }
 }
