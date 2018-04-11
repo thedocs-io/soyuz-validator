@@ -9,7 +9,7 @@ It scales from simple validators to very complex ones
 ## Simple example
 Suppose you've got `User` object with `email` property and you want to check that it's not empty and it's valid email:
 
-```
+```java
     @AllArgsConstructor
     @Getter
     public static class User {
@@ -29,7 +29,8 @@ Suppose you've got `User` object with `email` property and you want to check tha
 ```
 
 ## Validation builder
-Start building your validator with `Fv.of(classOfTheObjectYouAreGoingToValidate.class)`. Use `.string("string property")` / `.integer("integer property")` / etc to start coding property validation.
+Start building your validator with `Fv.of(classOfTheObjectYouAreGoingToValidate.class)`.
+Use `.string("string property")` / `.integer("integer property")` / etc to start coding property validation.
 Use `.b()` (alias to back) to return to main validation builder.
 
 ## Complex example
