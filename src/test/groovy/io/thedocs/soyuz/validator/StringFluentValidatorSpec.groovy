@@ -1,7 +1,6 @@
 package io.thedocs.soyuz.validator
 
 import io.thedocs.soyuz.err.Err
-import lombok.Getter
 import spock.lang.Specification
 
 class StringFluentValidatorSpec extends Specification {
@@ -43,6 +42,23 @@ class StringFluentValidatorSpec extends Specification {
         "username@yahoo..com"      | false
         "username@yahoo.c"         | false
         "username@yahoo.corporate" | false
+    }
+
+    def "url"() {
+        when:
+        def validator = Fv.of(User).string("homepageUrl").url().b().build()
+        def user = new User(homepageUrl: homepageUrl)
+
+        then:
+        assert validator.validate(user) == ((isValid) ? Fv.Result.success(user) : Fv.Result.failure(user, Err.field("homepageUrl").code("url").value(homepageUrl).build()))
+
+        where:
+        homepageUrl         | isValid
+        null                | true
+        ""                  | false
+        "abc"               | false
+        "ya.ru"             | false
+        "http://google.com" | true
     }
 
     def "isBoolean"() {
@@ -325,9 +341,14 @@ class StringFluentValidatorSpec extends Specification {
 
     static class User {
         private String email
+        private String homepageUrl
 
         String getEmail() {
             return email
+        }
+
+        String getHomepageUrl() {
+            return homepageUrl
         }
     }
 }

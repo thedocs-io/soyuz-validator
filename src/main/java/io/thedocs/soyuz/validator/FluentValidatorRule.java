@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 import javax.annotation.Nullable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -49,6 +51,29 @@ public interface FluentValidatorRule<R, V> {
             @Override
             protected boolean isValid(R rootObject, String value) {
                 return value != null && value.length() > 0;
+            }
+        }
+
+        class Url<R> extends AbstractRule<R, String> {
+
+            @Override
+            protected String getCode() {
+                return "url";
+            }
+
+            @Override
+            protected boolean isValid(R rootObject, String value) {
+                return value == null || isUrl(value);
+            }
+
+            private boolean isUrl(String value) {
+                try {
+                    new URL(value);
+
+                    return true;
+                } catch (MalformedURLException e) {
+                    return false;
+                }
             }
         }
 

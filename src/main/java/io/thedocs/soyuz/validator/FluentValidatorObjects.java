@@ -204,7 +204,6 @@ public class FluentValidatorObjects {
     @Setter
     @Getter
     public static class StringData<R> extends ObjectData<R, String> {
-        private boolean url;
         private Pattern matches;
     }
 

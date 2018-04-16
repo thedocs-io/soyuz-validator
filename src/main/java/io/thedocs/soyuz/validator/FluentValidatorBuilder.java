@@ -161,19 +161,14 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
         }
 
         public StringBuilder<R> url() {
-            data.setUrl(true);
+            data.addRule(new FluentValidatorRule.Str.Url<>());
+
             return this;
         }
 
         public StringBuilder<R> email() {
             data.addRule(new FluentValidatorRule.Str.Email<>());
 
-            return this;
-        }
-
-        public StringBuilder<R> filePath() {
-            //http://stackoverflow.com/questions/893977/java-how-to-find-out-whether-a-file-name-is-valid
-            //todo
             return this;
         }
 
