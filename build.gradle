@@ -1,8 +1,22 @@
+apply plugin: "java"
 apply plugin: "groovy"
+apply plugin: "maven"
+apply from: "./mavenCentral.gradle"
 
-version "2.01"
+group = "io.thedocs"
+archivesBaseName = "soyuz-is-to"
+version = "2.02"
 
-apply from: "https://mymavenrepo.com/repo/${myMavenRepoReadToken}/soyuz-gradle/1.0/base-1.0.gradle"
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+
+    maven {
+        url "https://mymavenrepo.com/repo/${myMavenRepoReadToken}/"
+    }
+}
 
 allprojects {
     group = "io.thedocs"
@@ -27,16 +41,37 @@ allprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "2.3"
+    gradleVersion = "4.6"
 }
 
 dependencies {
-    compile cl.utils.commons.bean
-    compile cl.utils.jsr305
-    compile cl.utils.thedocs.err
-    compile cl.json.jackson.annotations
-    provided cl.utils.lombok
+    compile([
+            "commons-beanutils:commons-beanutils:1.9.2",
+            "com.google.code.findbugs:jsr305:3.0.0",
+            "io.thedocs:soyuz-err:2.02"
+    ])
 
-    testCompile cl.test.spock.core
-    testCompile cl.utils.thedocs.isTo
+    compileOnly "org.projectlombok:lombok:1.16.18"
+
+    testCompile([
+            "org.spockframework:spock-core:1.0-groovy-2.4",
+            "io.thedocs:soyuz-is-to:0.72",
+            "org.projectlombok:lombok:1.16.18"
+    ])
+}
+
+task sourcesJar(type: Jar) {
+    classifier = "sources"
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = "javadoc"
+    from "build/docs/javadoc"
+}
+
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
 }
