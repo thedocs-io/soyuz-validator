@@ -6,7 +6,9 @@ import io.thedocs.soyuz.is;
 import io.thedocs.soyuz.to;
 import io.thedocs.soyuz.validator.Fv;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 import org.junit.Test;
 
 import java.time.LocalTime;
@@ -15,9 +17,191 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by fbelov on 05.04.18.
+ * This test demonstrates complex cases:
+ *  - dependency injection - e.g. you need to check that email is unique. In this case you need to access DB - inject Service / DAO into your validator.
+ *  - custom validation logic
+ *  - validation collection of items
  */
 public class SpringDependencyObjectValidationTest {
+
+    /**
+     * Let's define our model first. We've got Company object with List of Employee objects, complex Address and WorkingHours
+     */
+    @Getter
+    @AllArgsConstructor
+    @Builder(toBuilder = true)
+    @ToString
+    public static class Company {
+        private int id;
+        private String name;
+        private List<Employee> employees;
+        private Address address;
+        private WorkingHours workingHours;
+
+        @AllArgsConstructor
+        @Getter
+        @Builder(toBuilder = true)
+        @ToString
+        public static class Address {
+            private String city;
+            private String location;
+        }
+
+        @AllArgsConstructor
+        @Getter
+        @Builder(toBuilder = true)
+        @ToString
+        public static class WorkingHours {
+            private LocalTime from;
+            private LocalTime to;
+        }
+    }
+
+    /**
+     * Pretty simple Employee object
+     */
+    @AllArgsConstructor
+    @Getter
+    @Builder
+    @ToString
+    public static class Employee {
+        private int id;
+        private String email;
+        private String name;
+        private Integer age;
+    }
+
+    /**
+     * Our fake DAO to check that company name is unique
+     */
+    @AllArgsConstructor
+    private static class CompanyDao {
+
+        private List<Company> fakeCompanies;
+
+        public boolean isNameUnique(String name, Integer companyId) {
+            Company company = fakeCompanies
+                    .stream()
+                    .filter(c -> c.getName().equalsIgnoreCase(name))
+                    .findFirst()
+                    .orElse(null);
+
+            return company == null || Integer.valueOf(company.getId()).equals(companyId);
+        }
+    }
+
+
+    /**
+     * Our fake Spring context. We inject companyDao into companyValidator to be able to check that company name is unique
+     */
+    @Getter
+    private static class SimpleSpringAkaContext {
+
+        private static SimpleSpringAkaContext instance;
+
+        private CompanyDao companyDao;
+        private EmployeeValidatorProvider employeeValidatorProvider;
+        private CompanyValidatorProvider companyValidatorProvider;
+
+        private SimpleSpringAkaContext() {
+            this.companyDao = new CompanyDao(to.list(
+                    Company.builder()
+                            .id(2)
+                            .name("Gazprom")
+                            .address(new Company.Address("Saint Petersburg", "Street"))
+                            .employees(to.list())
+                            .build()
+            ));
+            this.employeeValidatorProvider = new EmployeeValidatorProvider();
+            this.companyValidatorProvider = new CompanyValidatorProvider(companyDao, employeeValidatorProvider);
+        }
+
+        public static synchronized SimpleSpringAkaContext getInstance() {
+            if (instance == null) {
+                instance = new SimpleSpringAkaContext();
+            }
+
+            return instance;
+        }
+    }
+
+    //
+    // Finally let's define our validators. We wrapped it with special class to be able to inject it without any Spring Qualifier
+    //
+
+    /**
+     * Employee has simple properties. So its validator is simple
+     */
+    private static class EmployeeValidatorProvider {
+
+        private Fv.Validator<Employee> employeeValidator;
+
+        public EmployeeValidatorProvider() {
+            this.employeeValidator = Fv.of(Employee.class)
+                    .primitiveInt("id").greaterThan(0).b()
+                    .string("email").notEmpty().email().b()
+                    .string("name").notEmpty().b()
+                    .integer("age").notNull().greaterOrEqual(18).b()
+                    .build();
+        }
+
+        public Fv.Validator<Employee> get() {
+            return employeeValidator;
+        }
+    }
+
+    /**
+     * !!! And here is our complex validator ===>>>
+     */
+    private static class CompanyValidatorProvider {
+
+        private Fv.Validator<Company> companyValidator;
+
+        public CompanyValidatorProvider(CompanyDao dao, EmployeeValidatorProvider employeeValidatorProvider) {
+            this.companyValidator = Fv.of(Company.class)
+                    .string("name").notEmpty().custom((o, v) -> { //we use custom function to define our custom logic to check that name company is unique
+                        if (is.t(v) && !dao.isNameUnique(v, o.getId())) {
+                            return Fv.CustomResult.failure("notUnique");
+                        } else {
+                            return Fv.CustomResult.success();
+                        }
+                    }).b()
+                    .collection("employees", Employee.class).notEmpty().itemValidator(employeeValidatorProvider.get()).b() //validate collection of Employees. Each item is validated by employeeValidator
+                    .object("workingHours", Company.WorkingHours.class).validator( //we can create Validator on the fly
+                            Fv.of(Company.WorkingHours.class) // [02:00:00 - 23:59:59], from should be before to
+                                    .localTime("from").greaterOrEqual(LocalTime.of(2, 0)).lessOrEqual(LocalTime.of(23, 59, 59)).b()
+                                    .localTime("to").greaterOrEqual(LocalTime.of(2, 0)).lessOrEqual(LocalTime.of(23, 59, 59)).b()
+                                    .custom((o, v) -> {
+                                        if (o.getFrom() != null && o.getTo() != null) {
+                                            if (o.getFrom().compareTo(o.getTo()) >= 0) {
+                                                return Fv.CustomResult.failure("fromShouldBeBeforeTo");
+                                            }
+                                        }
+
+                                        return Fv.CustomResult.success();
+                                    })
+                                    .build()
+                    ).b()
+                    .object("address", Company.Address.class).customWithBuilder((o, value, validator) -> { //validate custom object with inline validator
+                        return Fv.CustomResult.from(
+                                validator
+                                        .string("city").notEmpty().b()
+                                        .string("location").notEmpty().b()
+                                        .build()
+                                        .validate(value)
+                        );
+                    }).b()
+                    .build();
+        }
+
+        public Fv.Validator<Company> get() {
+            return companyValidator;
+        }
+    }
+
+    //
+    // And finally let's check that our validators really works
+    //
 
     private CompanyValidatorProvider companyValidatorProvider = SimpleSpringAkaContext.getInstance().getCompanyValidatorProvider();
 
@@ -117,70 +301,6 @@ public class SpringDependencyObjectValidationTest {
         assertEquals(resultExpected, result);
     }
 
-    private static class EmployeeValidatorProvider {
-
-        private Fv.Validator<Employee> employeeValidator;
-
-        public EmployeeValidatorProvider() {
-            this.employeeValidator = Fv.of(Employee.class)
-                    .primitiveInt("id").greaterThan(0).b()
-                    .string("email").notEmpty().email().b()
-                    .string("name").notEmpty().b()
-                    .integer("age").notNull().greaterOrEqual(18).b()
-                    .build();
-        }
-
-        public Fv.Validator<Employee> get() {
-            return employeeValidator;
-        }
-    }
-
-    private static class CompanyValidatorProvider {
-
-        private Fv.Validator<Company> companyValidator;
-
-        public CompanyValidatorProvider(CompanyDao dao, EmployeeValidatorProvider employeeValidatorProvider) {
-            this.companyValidator = Fv.of(Company.class)
-                    .string("name").notEmpty().custom((o, v) -> {
-                        if (is.t(v) && !dao.isNameUnique(v, o.getId())) {
-                            return Fv.CustomResult.failure("notUnique");
-                        } else {
-                            return Fv.CustomResult.success();
-                        }
-                    }).b()
-                    .collection("employees", Employee.class).notEmpty().itemValidator(employeeValidatorProvider.get()).b()
-                    .object("address", Company.Address.class).customWithBuilder((o, value, validator) -> {
-                        return Fv.CustomResult.from(
-                                validator
-                                        .string("city").notEmpty().b()
-                                        .string("location").notEmpty().b()
-                                        .build()
-                                        .validate(value)
-                        );
-                    }).b()
-                    .object("workingHours", Company.WorkingHours.class).validator(
-                            Fv.of(Company.WorkingHours.class)
-                                    .localTime("from").greaterOrEqual(LocalTime.of(2, 0)).lessOrEqual(LocalTime.of(23, 59, 59)).b()
-                                    .localTime("to").greaterOrEqual(LocalTime.of(2, 0)).lessOrEqual(LocalTime.of(23, 59, 59)).b()
-                                    .custom((o, v) -> {
-                                        if (o.getFrom() != null && o.getTo() != null) {
-                                            if (o.getFrom().compareTo(o.getTo()) >= 0) {
-                                                return Fv.CustomResult.failure("fromShouldBeBeforeTo");
-                                            }
-                                        }
-
-                                        return Fv.CustomResult.success();
-                                    })
-                                    .build()
-                    ).b()
-                    .build();
-        }
-
-        public Fv.Validator<Company> get() {
-            return companyValidator;
-        }
-    }
-
     private Company createValidCompany() {
         return Company.builder()
                 .id(1)
@@ -194,50 +314,4 @@ public class SpringDependencyObjectValidationTest {
                 .build();
     }
 
-    @AllArgsConstructor
-    private static class CompanyDao {
-
-        private List<Company> fakeCompanies;
-
-        public boolean isNameUnique(String name, Integer companyId) {
-            Company company = fakeCompanies
-                    .stream()
-                    .filter(c -> c.getName().equalsIgnoreCase(name))
-                    .findFirst()
-                    .orElse(null);
-
-            return company == null || Integer.valueOf(company.getId()).equals(companyId);
-        }
-    }
-
-    @Getter
-    private static class SimpleSpringAkaContext {
-
-        private static SimpleSpringAkaContext instance;
-
-        private CompanyDao companyDao;
-        private EmployeeValidatorProvider employeeValidatorProvider;
-        private CompanyValidatorProvider companyValidatorProvider;
-
-        private SimpleSpringAkaContext() {
-            this.companyDao = new CompanyDao(to.list(
-                    Company.builder()
-                            .id(2)
-                            .name("Gazprom")
-                            .address(new Company.Address("Saint Petersburg", "Street"))
-                            .employees(to.list())
-                            .build()
-            ));
-            this.employeeValidatorProvider = new EmployeeValidatorProvider();
-            this.companyValidatorProvider = new CompanyValidatorProvider(companyDao, employeeValidatorProvider);
-        }
-
-        public static synchronized SimpleSpringAkaContext getInstance() {
-            if (instance == null) {
-                instance = new SimpleSpringAkaContext();
-            }
-
-            return instance;
-        }
-    }
 }
