@@ -3,7 +3,7 @@ Are you a `Hibernate` fan? This project is not for you.
 Are you a `JOOQ` fan? Good, spend few minutes, maybe you will like it.
 
 ## Purpose
-This project allows you to **code** your validation logic (using builder patter).
+This java library allows you to **code** your validation logic (using builder patter).
 It scales from simple validators to very complex ones
 
 ## Simple example
