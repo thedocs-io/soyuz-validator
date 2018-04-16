@@ -2,7 +2,6 @@ package io.thedocs.soyuz.validator;
 
 import io.thedocs.soyuz.err.Err;
 import io.thedocs.soyuz.err.Errors;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +12,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 
 /**
  * Created by fbelov on 22.05.16.
@@ -64,12 +62,12 @@ public class FluentValidatorObjects {
             return _this();
         }
 
-        public BuilderClass unless(BiFunction<R, V, Boolean> unless) {
-            data.setUnless(unless);
-
-            return _this();
-        }
-
+//todo
+//        public BuilderClass unless(BiFunction<R, V, Boolean> unless) {
+//            data.setUnless(unless);
+//
+//            return _this();
+//        }
 
         public BuilderClass validator(Fv.Validator<V> validator) {
             data.addRule(new FluentValidatorRule.Base.Validator<>(validator));
@@ -85,12 +83,6 @@ public class FluentValidatorObjects {
 
         public BuilderClass customWithBuilder(CustomValidator.WithBuilder<R, V> customValidatorWithBuilder) {
             data.addRule(new FluentValidatorRule.Base.Custom<>(customValidatorWithBuilder));
-
-            return _this();
-        }
-
-        public BuilderClass message(String message) {
-            data.setMessage(message);
 
             return _this();
         }
@@ -129,15 +121,10 @@ public class FluentValidatorObjects {
 
         private List<FluentValidatorRule<R, V>> rules = new ArrayList<>();
 
-//        private V eq;
-//        private Function<V, Boolean> eqFunction;
-//        private V notEq;
-//        private Function<V, Boolean> notEqFunction;
         private List<BiFunction> when = new ArrayList<>();
-        private BiFunction unless;
+        //private BiFunction unless;
         private Fv.Validator<V> validator;
         private final List<CustomValidator> customValidators = new ArrayList<>();
-        private String message;
 
         public void addWhen(BiFunction<?, V, Boolean> when) {
             this.when.add(when);
@@ -177,20 +164,13 @@ public class FluentValidatorObjects {
         }
     }
 
-    @Data
+//    @Setter
     public static class RootData<R, V> extends ObjectData<R, V> {
-        private boolean failFast;
+//        private boolean failFast;
     }
 
-    @Data
     public static class ObjectData<R, V> extends BaseData<R, V> {
-        private boolean notNull;
 
-
-        public ObjectData notNull() {
-            notNull = true;
-            return this;
-        }
     }
 
     public static class IntData<R> extends BaseData<R, Integer> {
@@ -201,10 +181,8 @@ public class FluentValidatorObjects {
 
     }
 
-    @Setter
-    @Getter
     public static class StringData<R> extends ObjectData<R, String> {
-        private Pattern matches;
+
     }
 
     public static class DateData<R> extends ObjectData<R, Date> {

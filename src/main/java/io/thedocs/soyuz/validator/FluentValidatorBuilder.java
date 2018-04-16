@@ -27,17 +27,19 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
         this.rootProperty = rootProperty;
     }
 
-    public FluentValidatorBuilder<T> failFast() {
-        return failFast(true);
-    }
-
-    public FluentValidatorBuilder<T> failFast(boolean failFast) {
-        data.setFailFast(failFast);
-        return this;
-    }
+//todo
+//    public FluentValidatorBuilder<T> failFast() {
+//        return failFast(true);
+//    }
+//
+//    public FluentValidatorBuilder<T> failFast(boolean failFast) {
+//        data.setFailFast(failFast);
+//        return this;
+//    }
 
     public FluentValidatorBuilder<T> notNull() {
-        data.notNull();
+        data.addRule(new FluentValidatorRule.Obj.NotNull<>());
+
         return this;
     }
 
@@ -417,7 +419,7 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
         }
 
         public BuilderClass notNull() {
-            data.addRule(new FluentValidatorRule.Obj.NotNull<R, V>());
+            data.addRule(new FluentValidatorRule.Obj.NotNull<>());
 
             return _this();
         }

@@ -5,10 +5,10 @@ import spock.lang.Specification
 
 class DateFluentValidatorSpec extends Specification {
 
-    def "before / after"() {
+    def "greaterThan / lessThan"() {
         when:
         def validator = Fv.of(Car)
-                .date("constructed").after(new Date(1987 - 1900, 01, 01)).before(new Date(1987 - 1900, 12, 31)).b()
+                .date("constructed").greaterThan(new Date(1987 - 1900, 01, 01)).lessThan(new Date(1987 - 1900, 12, 31)).b()
                 .build()
 
         then:
@@ -17,8 +17,8 @@ class DateFluentValidatorSpec extends Specification {
         where:
         car                                                 | result
         new Car()                                           | { c -> Fv.Result.success(c) }
-        new Car(constructed: new Date(1986 - 1900, 12, 31)) | { c -> Fv.Result.failure(c, Err.field("constructed").code("after").value(c.constructed).build()) }
-        new Car(constructed: new Date(1988 - 1900, 01, 01)) | { c -> Fv.Result.failure(c, Err.field("constructed").code("before").value(c.constructed).build()) }
+        new Car(constructed: new Date(1986 - 1900, 12, 31)) | { c -> Fv.Result.failure(c, Err.field("constructed").code("greaterThan").value(c.constructed).build()) }
+        new Car(constructed: new Date(1988 - 1900, 01, 01)) | { c -> Fv.Result.failure(c, Err.field("constructed").code("lessThan").value(c.constructed).build()) }
         new Car(constructed: new Date(1987 - 1900, 05, 01)) | { c -> Fv.Result.success(c) }
     }
 

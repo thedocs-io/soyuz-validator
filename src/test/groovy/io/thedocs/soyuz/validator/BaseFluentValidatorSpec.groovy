@@ -27,4 +27,14 @@ class BaseFluentValidatorSpec extends Specification {
         assert validator.validate("world") == Fv.Result.success("world")
         assert validator.validate("hello world") == Fv.Result.failure("hello world", Err.code("notEq").value("hello world").build())
     }
+
+    def "notNull"() {
+        when:
+        def validator = Fv.of(String).notNull().build()
+
+        then:
+        assert validator.validate(null) == Fv.Result.failure(null, Err.code("notNull").value(null).build())
+        assert validator.validate("") == Fv.Result.success("")
+        assert validator.validate("abc") == Fv.Result.success("abc")
+    }
 }

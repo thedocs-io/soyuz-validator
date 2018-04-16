@@ -102,7 +102,7 @@ class CollectionFluentValidatorSpec extends Specification {
         members                            | result
         null                               | { t, m -> Fv.Result.success(t) }
         [new Member(name: "Fedor")] as Set | { t, m -> Fv.Result.success(t) }
-        [new Member(name: "")] as Set      | { t, m -> Fv.Result.failure(t, Err.field("members.0.name").code("notEmpty").value("").build()) }
+        [new Member(name: "")] as Set      | { t, m -> Fv.Result.failure(t, Err.field("members[0].name").code("notEmpty").value("").build()) }
     }
 
     @EqualsAndHashCode

@@ -2,6 +2,7 @@ package io.thedocs.soyuz.validator
 
 import io.thedocs.soyuz.err.Err
 import io.thedocs.soyuz.err.Errors
+import spock.lang.Ignore
 import spock.lang.Specification
 
 import java.util.concurrent.atomic.AtomicBoolean
@@ -9,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Created by fbelov on 06.05.16.
  */
+@Ignore
 class FailFastFluentValidatorSpec extends Specification {
 
     def "should fail fast"() {
