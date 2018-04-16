@@ -49,5 +49,26 @@ We created the [special test](https://github.com/thedocs-io/soyuz-validator/blob
 
 [Click here to read complex example](https://github.com/thedocs-io/soyuz-validator/blob/master/src/test/java/io/thedocs/soyuz/validator/test/SpringDependencyObjectValidationTest.java)
 
+## How to use
+### Maven
+```
+<dependency>
+    <groupId>io.thedocs</groupId>
+    <artifactId>soyuz-validator</artifactId>
+    <version>2.02</version>
+</dependency>
+```
+
+### Gradle
+```
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'io.thedocs:soyuz-validator:2.02'
+}
+```
+
 ## License
 MIT

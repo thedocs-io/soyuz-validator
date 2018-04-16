@@ -4,7 +4,7 @@ apply plugin: "maven"
 apply from: "./mavenCentral.gradle"
 
 group = "io.thedocs"
-archivesBaseName = "soyuz-is-to"
+archivesBaseName = "soyuz-validator"
 version = "2.02"
 
 sourceCompatibility = 1.8
