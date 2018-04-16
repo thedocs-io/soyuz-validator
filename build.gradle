@@ -12,32 +12,6 @@ targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
-
-    maven {
-        url "https://mymavenrepo.com/repo/${myMavenRepoReadToken}/"
-    }
-}
-
-allprojects {
-    group = "io.thedocs"
-
-    ext {
-        repos = [
-                jongo     : "http://repository-jongo.forge.cloudbees.com/release",
-                urlBuilder: "http://maven2.gueck.com/releases"
-        ]
-
-    }
-
-    repositories {
-        maven { url repos.jongo }
-        maven { url repos.urlBuilder }
-    }
-
-    test {
-        systemProperties "file.encoding": "UTF-8" //fix utf-8 problems in tests
-        testLogging.showStandardStreams = true //display stdout on tests
-    }
 }
 
 task wrapper(type: Wrapper) {
