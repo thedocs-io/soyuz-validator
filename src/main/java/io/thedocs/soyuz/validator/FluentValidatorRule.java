@@ -315,6 +315,24 @@ public interface FluentValidatorRule<R, V> {
                 return FvUtils.to.map("criterion", size);
             }
         }
+
+        class Matches<R> extends AbstractRule<R, String> {
+            private Pattern pattern;
+
+            public Matches(Pattern pattern) {
+                this.pattern = pattern;
+            }
+
+            @Override
+            protected String getCode() {
+                return "matches";
+            }
+
+            @Override
+            protected boolean isValid(R rootObject, String value) {
+                return value == null || pattern.matcher(value).matches();
+            }
+        }
     }
 
     interface Int {

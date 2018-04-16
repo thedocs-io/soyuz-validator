@@ -245,7 +245,8 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
         }
 
         public StringBuilder<R> matches(Pattern pattern) {
-            data.setMatches(pattern);
+            data.addRule(new FluentValidatorRule.Str.Matches<>(pattern));
+
             return this;
         }
     }

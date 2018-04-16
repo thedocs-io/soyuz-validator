@@ -61,6 +61,22 @@ class StringFluentValidatorSpec extends Specification {
         "http://google.com" | true
     }
 
+    def "matches"() {
+        when:
+        def validator = Fv.of(User).string("email").matches(~/^(.+)@gmail.com$/).b().build()
+        def user = new User(email: email)
+
+        then:
+        assert validator.validate(user) == ((isValid) ? Fv.Result.success(user) : Fv.Result.failure(user, Err.field("email").code("matches").value(email).build()))
+
+        where:
+        email               | isValid
+        null                | true
+        ""                  | false
+        "abc@yahoo.com"     | false
+        "trololo@gmail.com" | true
+    }
+
     def "isBoolean"() {
         setup:
         def validator = Fv.of(Car).string("title").isBoolean().b().build()
