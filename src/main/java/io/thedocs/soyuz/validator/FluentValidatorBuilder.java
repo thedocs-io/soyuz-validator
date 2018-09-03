@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 /**
  * Created by fbelov on 5/10/16.
  */
-public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilder<T, T, FluentValidatorBuilder<T>, FluentValidatorObjects.RootData<T, T>> {
+public class FluentValidatorBuilder<T> {
 
     private String rootProperty;
     private List<ValidationDataWithProperties> validationData = new ArrayList<>();
@@ -22,8 +22,6 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
     }
 
     public FluentValidatorBuilder(String rootProperty) {
-        super(new FluentValidatorObjects.RootData<T, T>());
-
         this.rootProperty = rootProperty;
     }
 
@@ -37,10 +35,8 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
 //        return this;
 //    }
 
-    public FluentValidatorBuilder<T> notNull() {
-        data.addRule(new FluentValidatorRule.Obj.NotNull<>());
-
-        return this;
+    public RootBuilder<T> self() {
+        return new RootBuilder<>(this);
     }
 
     public ObjectBuilder<T, Object> object(String property) {
@@ -92,8 +88,6 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
     }
 
     public Fv.Validator<T> build() {
-        validationData.add(new ValidationDataWithProperties(null, data));
-
         return new FluentValidatorImpl<T>(validationData);
     }
 
@@ -154,6 +148,14 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
         public DoubleBuilder(FluentValidatorBuilder<R> builder, String property) {
             super(builder, new FluentValidatorObjects.NumberData<>(), property);
         }
+    }
+
+    public static class RootBuilder<R> extends AbstractObjectBuilder<R, R, RootBuilder<R>, FluentValidatorObjects.RootData<R>> {
+
+        public RootBuilder(FluentValidatorBuilder<R> builder) {
+            super(builder, new FluentValidatorObjects.RootData<>(), null);
+        }
+
     }
 
     public static class StringBuilder<R> extends AbstractObjectBuilder<R, String, StringBuilder<R>, FluentValidatorObjects.StringData<R>> {
@@ -438,6 +440,13 @@ public class FluentValidatorBuilder<T> extends FluentValidatorObjects.BaseBuilde
 
         public FluentValidatorBuilder<R> b() {
             return builder.addFluentValidatorValidationData(property, data);
+        }
+
+        /**
+         * Alias to b (back)
+         */
+        public FluentValidatorBuilder<R> and() {
+            return b();
         }
 
     }

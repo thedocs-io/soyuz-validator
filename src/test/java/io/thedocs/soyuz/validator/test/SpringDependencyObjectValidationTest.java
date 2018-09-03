@@ -138,9 +138,9 @@ public class SpringDependencyObjectValidationTest {
 
         public EmployeeValidatorProvider() {
             this.employeeValidator = Fv.of(Employee.class)
-                    .primitiveInt("id").greaterThan(0).b()
-                    .string("email").notEmpty().email().b()
-                    .string("name").notEmpty().b()
+                    .primitiveInt("id").greaterThan(0).and()
+                    .string("email").notEmpty().email().and()
+                    .string("name").notEmpty().and()
                     .integer("age").notNull().greaterOrEqual(18).b()
                     .build();
         }
@@ -165,13 +165,13 @@ public class SpringDependencyObjectValidationTest {
                         } else {
                             return Fv.CustomResult.success();
                         }
-                    }).b()
-                    .collection("employees", Employee.class).notEmpty().itemValidator(employeeValidatorProvider.get()).b() //validate collection of Employees. Each item is validated by employeeValidator
+                    }).and()
+                    .collection("employees", Employee.class).notEmpty().itemValidator(employeeValidatorProvider.get()).and() //validate collection of Employees. Each item is validated by employeeValidator
                     .object("workingHours", Company.WorkingHours.class).validator( //we can create Validator on the fly
                             Fv.of(Company.WorkingHours.class) // [02:00:00 - 23:59:59], from should be before to
-                                    .localTime("from").greaterOrEqual(LocalTime.of(2, 0)).lessOrEqual(LocalTime.of(23, 59, 59)).b()
-                                    .localTime("to").greaterOrEqual(LocalTime.of(2, 0)).lessOrEqual(LocalTime.of(23, 59, 59)).b()
-                                    .custom((o, v) -> {
+                                    .localTime("from").greaterOrEqual(LocalTime.of(2, 0)).lessOrEqual(LocalTime.of(23, 59, 59)).and()
+                                    .localTime("to").greaterOrEqual(LocalTime.of(2, 0)).lessOrEqual(LocalTime.of(23, 59, 59)).and()
+                                    .self().custom((o, v) -> {
                                         if (o.getFrom() != null && o.getTo() != null) {
                                             if (o.getFrom().compareTo(o.getTo()) >= 0) {
                                                 return Fv.CustomResult.failure("fromShouldBeBeforeTo");
@@ -179,14 +179,14 @@ public class SpringDependencyObjectValidationTest {
                                         }
 
                                         return Fv.CustomResult.success();
-                                    })
+                                    }).and()
                                     .build()
-                    ).b()
+                    ).and()
                     .object("address", Company.Address.class).customWithBuilder((o, value, validator) -> { //validate custom object with inline validator
                         return Fv.CustomResult.from(
                                 validator
-                                        .string("city").notEmpty().b()
-                                        .string("location").notEmpty().b()
+                                        .string("city").notEmpty().and()
+                                        .string("location").notEmpty().and()
                                         .build()
                                         .validate(value)
                         );

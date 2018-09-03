@@ -11,7 +11,7 @@ class BaseFluentValidatorSpec extends Specification {
 
     def "eq (simple)"() {
         when:
-        def validator = Fv.of(String).eq("hello world").build()
+        def validator = Fv.of(String).self().eq("hello world").b().build()
 
         then:
         assert validator.validate("hello") == Fv.Result.failure("hello", Err.code("notEq").value("hello").build())
@@ -20,7 +20,7 @@ class BaseFluentValidatorSpec extends Specification {
 
     def "eq (function)"() {
         when:
-        def validator = Fv.of(String).eq({ it == "hello" || it == "world" } as Function).build()
+        def validator = Fv.of(String).self().eq({ it == "hello" || it == "world" } as Function).b().build()
 
         then:
         assert validator.validate("hello") == Fv.Result.success("hello")
@@ -30,7 +30,7 @@ class BaseFluentValidatorSpec extends Specification {
 
     def "notNull"() {
         when:
-        def validator = Fv.of(String).notNull().build()
+        def validator = Fv.of(String).self().notNull().b().build()
 
         then:
         assert validator.validate(null) == Fv.Result.failure(null, Err.code("notNull").value(null).build())

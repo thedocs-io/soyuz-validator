@@ -165,7 +165,7 @@ public class FluentValidatorObjects {
     }
 
 //    @Setter
-    public static class RootData<R, V> extends ObjectData<R, V> {
+    public static class RootData<R> extends ObjectData<R, R> {
 //        private boolean failFast;
     }
 
