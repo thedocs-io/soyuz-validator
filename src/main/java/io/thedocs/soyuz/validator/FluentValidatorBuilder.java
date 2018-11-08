@@ -182,6 +182,12 @@ public class FluentValidatorBuilder<T> {
             return this;
         }
 
+        public StringBuilder<R> notBlank() {
+            data.addRule(new FluentValidatorRule.Str.NotBlank<>());
+
+            return this;
+        }
+
         public StringBuilder<R> isBoolean() {
             data.addRule(new FluentValidatorRule.Str.IsBoolean<>());
 

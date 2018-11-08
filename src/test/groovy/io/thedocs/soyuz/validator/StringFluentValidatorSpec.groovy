@@ -16,6 +16,22 @@ class StringFluentValidatorSpec extends Specification {
         car                    | result
         new Car()              | { c -> Fv.Result.failure(c, Err.field("title").code("notEmpty").build()) }
         new Car(title: "")     | { c -> Fv.Result.failure(c, Err.field("title").code("notEmpty").value("").build()) }
+        new Car(title: " ")    | { c -> Fv.Result.success(c) }
+        new Car(title: "Lada") | { c -> Fv.Result.success(c) }
+    }
+
+    def "notBlank"() {
+        when:
+        def validator = Fv.of(Car).string("title").notBlank().b().build()
+
+        then:
+        assert validator.validate(car) == result(car)
+
+        where:
+        car                    | result
+        new Car()              | { c -> Fv.Result.failure(c, Err.field("title").code("notBlank").build()) }
+        new Car(title: "")     | { c -> Fv.Result.failure(c, Err.field("title").code("notBlank").value("").build()) }
+        new Car(title: "    ") | { c -> Fv.Result.failure(c, Err.field("title").code("notBlank").value("    ").build()) }
         new Car(title: "Lada") | { c -> Fv.Result.success(c) }
     }
 

@@ -54,6 +54,18 @@ public interface FluentValidatorRule<R, V> {
             }
         }
 
+        class NotBlank<R> extends AbstractRule<R, String> {
+            @Override
+            protected String getCode() {
+                return "notBlank";
+            }
+
+            @Override
+            protected boolean isValid(R rootObject, String value) {
+                return value != null && value.trim().length() > 0;
+            }
+        }
+
         class Url<R> extends AbstractRule<R, String> {
 
             @Override
