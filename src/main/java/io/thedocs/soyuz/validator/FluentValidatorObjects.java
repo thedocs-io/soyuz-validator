@@ -62,6 +62,13 @@ public class FluentValidatorObjects {
             return _this();
         }
 
+        public <S> BuilderClass mapFrom(Class<S> clazz, Function<S, V> mapFrom) {
+            data.setMapFrom(mapFrom);
+
+            return _this();
+        }
+
+
 //todo
 //        public BuilderClass unless(BiFunction<R, V, Boolean> unless) {
 //            data.setUnless(unless);
@@ -122,6 +129,7 @@ public class FluentValidatorObjects {
         private List<FluentValidatorRule<R, V>> rules = new ArrayList<>();
 
         private List<BiFunction> when = new ArrayList<>();
+        private Function mapFrom;
         //private BiFunction unless;
         private Fv.Validator<V> validator;
         private final List<CustomValidator> customValidators = new ArrayList<>();
@@ -144,6 +152,10 @@ public class FluentValidatorObjects {
 
         @Override
         public Fv.Result validate(R rootObject, String property, V value) {
+            if (mapFrom != null && value != null) {
+                value = (V) mapFrom.apply(value);
+            }
+
             for (BiFunction<R, V, Boolean> whenItem : when) {
                 if (!whenItem.apply(rootObject, value)) {
                     return null;
