@@ -156,6 +156,53 @@ public class FluentValidatorBuilder<T> {
             super(builder, new FluentValidatorObjects.RootData<>(), null);
         }
 
+        public ObjectBuilder<R, Object> object() {
+            return new ObjectBuilder<>(builder, null);
+        }
+
+        public <V> ObjectBuilder<R, V> object(Class<V> clazz) {
+            return new ObjectBuilder<>(builder, null);
+        }
+
+        public StringBuilder<R> string() {
+            return new StringBuilder<>(builder, null);
+        }
+
+        public DateBuilder<R> date() {
+            return new DateBuilder<>(builder, null);
+        }
+
+        public LocalDateBuilder<R> localDate() {
+            return new LocalDateBuilder<>(builder, null);
+        }
+
+        public LocalTimeBuilder<R> localTime() {
+            return new LocalTimeBuilder<>(builder, null);
+        }
+
+        public CollectionBuilder<R, Object> collection() {
+            return new CollectionBuilder<>(builder, null);
+        }
+
+        public <V> CollectionBuilder<R, V> collection(Class<V> clazz) {
+            return new CollectionBuilder<>(builder, null);
+        }
+
+        public PrimitiveIntBuilder<R> primitiveInt() {
+            return new PrimitiveIntBuilder<>(builder, null);
+        }
+
+        public IntegerBuilder<R> integer() {
+            return new IntegerBuilder<>(builder, null);
+        }
+
+        public DoubleBuilder<R> double_() {
+            return new DoubleBuilder<>(builder, null);
+        }
+
+        public LongBuilder<R> long_() {
+            return new LongBuilder<>(builder, null);
+        }
     }
 
     public static class StringBuilder<R> extends AbstractObjectBuilder<R, String, StringBuilder<R>, FluentValidatorObjects.StringData<R>> {
