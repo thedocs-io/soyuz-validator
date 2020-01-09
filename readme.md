@@ -55,7 +55,7 @@ We created the [special test](https://github.com/thedocs-io/soyuz-validator/blob
 <dependency>
     <groupId>io.thedocs</groupId>
     <artifactId>soyuz-validator</artifactId>
-    <version>2.03</version>
+    <version>3.0.5</version>
 </dependency>
 ```
 
