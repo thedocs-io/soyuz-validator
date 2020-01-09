@@ -66,7 +66,7 @@ repositories {
 }
 
 dependencies {
-    compile 'io.thedocs:soyuz-validator:2.03'
+    compile 'io.thedocs:soyuz-validator:3.0.5'
 }
 ```
 

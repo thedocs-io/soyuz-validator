@@ -138,7 +138,7 @@ public class FluentValidatorBuilder<T> {
         }
     }
 
-    public static class LongBuilder<R> extends AbstractNumberBuilder<R, Long, IntegerBuilder<R>, FluentValidatorObjects.NumberData<R, Long>> {
+    public static class LongBuilder<R> extends AbstractNumberBuilder<R, Long, LongBuilder<R>, FluentValidatorObjects.NumberData<R, Long>> {
         public LongBuilder(FluentValidatorBuilder<R> builder, String property) {
             super(builder, new FluentValidatorObjects.NumberData<>(), property);
         }
