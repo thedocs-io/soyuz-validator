@@ -57,7 +57,8 @@ class StringFluentValidatorSpec extends Specification {
         "username@yahoo.com."      | false
         "username@yahoo..com"      | false
         "username@yahoo.c"         | false
-        "username@yahoo.corporate" | false
+        "username@yahoo.corporate" | true
+        "username@yahoo.digital"   | true
     }
 
     def "url"() {

@@ -91,7 +91,7 @@ public interface FluentValidatorRule<R, V> {
 
         class Email<R> extends AbstractRule<R, String> {
 
-            private static final Pattern MAIL_PATTERN = Pattern.compile("^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$");
+            private static final Pattern MAIL_PATTERN = Pattern.compile("^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,20}$");
 
             @Override
             protected String getCode() {
